@@ -19,10 +19,10 @@ func main() {
 	r := gin.Default()
 
 	// Create handler instances
-	uploadPDFHandler := &handler.UploadPDF{
+	uploadFileHandler := &handler.UploadFile{
 		DB: db,
 	}
-	getPDFHandler := &handler.GetPDF{
+	getFileHandler := &handler.GetFile{
 		DB: db,
 	}
 	healthHandler := &handler.Health{
@@ -32,9 +32,9 @@ func main() {
 	// Setup routes
 	r.GET("/health", healthHandler.Handle)
 
-	pdfGroup := r.Group("/pdf")
-	pdfGroup.POST("/upload", uploadPDFHandler.Handle)
-	pdfGroup.GET("/:id", getPDFHandler.Handle)
+	fileGroup := r.Group("/file")
+	fileGroup.POST("/upload", uploadFileHandler.Handle)
+	fileGroup.GET("/:id", getFileHandler.Handle)
 
 	// Start server
 	log.Fatal(r.Run(":8080"))

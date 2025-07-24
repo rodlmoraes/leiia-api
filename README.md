@@ -1,16 +1,16 @@
 # leiia-api
 
-A Go HTTP API that receives PDF files via POST endpoint and extracts readable text content. Files and parsed content are stored in PostgreSQL database using GORM.
+A Go HTTP API that receives files via POST endpoint and extracts readable text content. Files and parsed content are stored in PostgreSQL database using GORM.
 
 ## Features
 
-- HTTP POST endpoint for PDF file uploads
-- PDF text extraction using `ledongthuc/pdf` library
+- HTTP POST endpoint for file uploads
+- File text extraction using `ledongthuc/pdf` library
 - PostgreSQL database integration for file and content storage
 - GORM ORM for database operations
 - Input validation (file type, size limits)
 - JSON responses with extracted text content
-- Retrieve previously uploaded PDFs by ID
+- Retrieve previously uploaded files by ID
 - Docker support for easy development setup
 
 ## Setup
@@ -175,22 +175,22 @@ Example startup output:
 ```
 Database connection established and migrations completed
 Server starting on port 8080...
-PDF upload endpoint: POST http://localhost:8080/upload-pdf
-Get PDF endpoint: GET http://localhost:8080/pdf/{id}
+File upload endpoint: POST http://localhost:8080/file/upload
+Get file endpoint: GET http://localhost:8080/file/{id}
 ```
 
 ## Database Schema
 
-The application creates a `pdf_files` table with the following structure:
+The application creates a `files` table with the following structure:
 
 ```sql
-CREATE TABLE pdf_files (
+CREATE TABLE files (
     id SERIAL PRIMARY KEY,
     filename VARCHAR NOT NULL,
     original_name VARCHAR NOT NULL,
     file_size BIGINT NOT NULL,
     content_type VARCHAR NOT NULL,
-    file_data BYTEA NOT NULL,        -- Stores actual PDF file content
+    file_data BYTEA NOT NULL,        -- Stores actual file content
     parsed_text TEXT,                -- Extracted text content (nullable)
     parse_error TEXT,                -- Error message if parsing failed (nullable)
     uploaded_at TIMESTAMP DEFAULT NOW(),
@@ -200,20 +200,20 @@ CREATE TABLE pdf_files (
 
 ## API Endpoints
 
-### POST /upload-pdf
+### POST /file/upload
 
-Upload a PDF file and extract its text content.
+Upload a file and extract its text content.
 
 **Request:**
 - Method: `POST`
 - Content-Type: `multipart/form-data`
-- Form field: `pdf` (file)
+- Form field: `file` (file)
 
 **Response:**
 ```json
 {
   "id": 1,
-  "message": "PDF uploaded and parsed successfully",
+  "message": "File uploaded and parsed successfully",
   "filename": "document.pdf",
   "size": 12345,
   "content": "Extracted text content here...",
@@ -221,19 +221,19 @@ Upload a PDF file and extract its text content.
 }
 ```
 
-### GET /pdf/{id}
+### GET /file/{id}
 
-Retrieve a previously uploaded PDF's information and content.
+Retrieve a previously uploaded file's information and content.
 
 **Request:**
 - Method: `GET`
-- URL: `/pdf/{id}` where `{id}` is the PDF's database ID
+- URL: `/file/{id}` where `{id}` is the file's database ID
 
 **Response:**
 ```json
 {
   "id": 1,
-  "message": "PDF found and parsed successfully",
+  "message": "File found and parsed successfully",
   "filename": "document.pdf", 
   "size": 12345,
   "content": "Extracted text content here...",
@@ -255,16 +255,16 @@ Health check endpoint that also verifies database connectivity.
 
 ## Testing with Postman
 
-### Upload PDF
-1. Create a new POST request to `http://localhost:8080/upload-pdf`
+### Upload File
+1. Create a new POST request to `http://localhost:8080/file/upload`
 2. Set Body to `form-data`
-3. Add a key named `pdf` with type `File`
-4. Select your PDF file
+3. Add a key named `file` with type `File`
+4. Select your file
 5. Send the request
 6. Note the `id` in the response for retrieval
 
-### Retrieve PDF
-1. Create a new GET request to `http://localhost:8080/pdf/{id}`
+### Retrieve File
+1. Create a new GET request to `http://localhost:8080/file/{id}`
 2. Replace `{id}` with the ID from the upload response
 3. Send the request
 
@@ -273,18 +273,18 @@ Health check endpoint that also verifies database connectivity.
 ### Upload
 ```bash
 curl -X POST \
-  -F "pdf=@/path/to/your/file.pdf" \
-  http://localhost:8080/upload-pdf
+  -F "file=@/path/to/your/file.pdf" \
+  http://localhost:8080/file/upload
 ```
 
 ### Retrieve
 ```bash
-curl http://localhost:8080/pdf/1
+curl http://localhost:8080/file/1
 ```
 
 ## File Storage
 
-- PDF files are stored as binary data (`BYTEA`) in PostgreSQL
+- Files are stored as binary data (`BYTEA`) in PostgreSQL
 - No temporary files are created on the filesystem
 - Both original file content and parsed text are stored in the database
 - Files can be retrieved by their database ID
@@ -295,7 +295,7 @@ The API handles various error cases:
 - Invalid file types (non-PDF)
 - File size exceeding limits (10MB)
 - Database connection failures
-- PDF parsing errors (file is still saved but parsing failure is recorded)
+- File parsing errors (file is still saved but parsing failure is recorded)
 - Record not found for retrieval requests
 
 ## Development

@@ -29,7 +29,7 @@ func Initialize() (*gorm.DB, error) {
 	}
 
 	// Auto-migrate the schema
-	err = db.AutoMigrate(&entity.PDFFile{})
+	err = db.AutoMigrate(&entity.File{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
